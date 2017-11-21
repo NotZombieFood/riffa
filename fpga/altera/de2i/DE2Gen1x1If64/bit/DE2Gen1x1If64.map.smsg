@@ -1,0 +1,2 @@
+Warning (10268): Verilog HDL information at LCD.sv(167): always construct contains both blocking and non-blocking assignments File: C:/Users/gerar/Documents/GitHub/riffa/fpga/altera/de2i/DE2Gen1x1If64/hdl/LCD.sv Line: 167
+Info (10281): Verilog HDL Declaration information at DE2Gen1x1If64.v(68): object "DATA" differs only in case from object "data" in the same scope File: C:/Users/gerar/Documents/GitHub/riffa/fpga/altera/de2i/DE2Gen1x1If64/hdl/DE2Gen1x1If64.v Line: 68

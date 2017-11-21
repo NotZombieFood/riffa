@@ -62,7 +62,11 @@ module DE2Gen1x1If64
    output [0:0]  PCIE_TX_OUT,
    // ----------LEDs ----------
    output [8:0]  LED_G,
-   output [17:0] LED_R);
+   output [17:0] LED_R,
+	input rst,
+	//---- LCD ----
+	output [7:0] DATA,
+	output RW, EN, RS, ON);
     // ----------PLL Signals----------
     wire                      clk50;
     wire                      clk125;
@@ -150,7 +154,11 @@ module DE2Gen1x1If64
     reg [4:0]                    rRstCtr,_rRstCtr;
     reg [2:0]                    rRstSync,_rRstSync;
     wire                         wSyncRst;
-    
+	 
+	wire [63:0] data;
+	wire enable;
+	
+    assign LED_G[8] = 1;
     always @(*) begin
         _rRstSync = {rRstSync[1:0], ~npor};
         _rRstCtr = rRstCtr;
@@ -384,8 +392,24 @@ module DE2Gen1x1If64
                   .CHNL_TX_OFF(chnl_tx_off[`SIG_CHNL_OFFSET_W*i +:`SIG_CHNL_OFFSET_W]), 
                   .CHNL_TX_DATA(chnl_tx_data[C_PCI_DATA_WIDTH*i +:C_PCI_DATA_WIDTH]), 
                   .CHNL_TX_DATA_VALID(chnl_tx_data_valid[i]), 
-                  .CHNL_TX_DATA_REN(chnl_tx_data_ren[i]));    
+                  .CHNL_TX_DATA_REN(chnl_tx_data_ren[i]),.teclado(data),.ADR(ADR));    
         end
     endgenerate
     // --------------------  END USER CODE  --------------------
+	 
+	 // -------------Begin LCD Code --------------------------
+
+		LCD_SD lm(
+	.clk(CLK1_50),
+	.rst(~rst),
+	.data_mem(data),
+	.DATA(DATA),
+	.address(ADR),
+	.RW(RW),
+	.EN(EN),
+	.RS(RS),
+	.ON(ON)
+);
+
+
 endmodule // DE2i_PCIe

@@ -1,0 +1,18 @@
+Analysis & Synthesis Status : Successful - Mon Nov 20 18:16:13 2017
+Quartus Prime Version : 17.0.0 Build 595 04/25/2017 SJ Lite Edition
+Revision Name : DE2Gen1x1If64
+Top-level Entity Name : DE2Gen1x1If64
+Family : Cyclone IV GX
+Total logic elements : 11,670
+    Total combinational functions : 7,655
+    Dedicated logic registers : 8,611
+Total registers : 8611
+Total pins : 47
+Total virtual pins : 0
+Total memory bits : 471,047
+Embedded Multiplier 9-bit elements : 0
+Total GXB Receiver Channel PCS : 1
+Total GXB Receiver Channel PMA : 1
+Total GXB Transmitter Channel PCS : 1
+Total GXB Transmitter Channel PMA : 1
+Total PLLs : 2

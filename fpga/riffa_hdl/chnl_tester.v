@@ -55,6 +55,7 @@ module chnl_tester #(
 	input RST,
 	output CHNL_RX_CLK, 
 	input CHNL_RX, 
+	input ADR,
 	output CHNL_RX_ACK, 
 	input CHNL_RX_LAST, 
 	input [31:0] CHNL_RX_LEN, 
@@ -71,14 +72,15 @@ module chnl_tester #(
 	output [30:0] CHNL_TX_OFF, 
 	output [C_PCI_DATA_WIDTH-1:0] CHNL_TX_DATA, 
 	output CHNL_TX_DATA_VALID, 
-	input CHNL_TX_DATA_REN
-);
+	input CHNL_TX_DATA_REN,
+	output  [31:0] teclado);
 
 reg [C_PCI_DATA_WIDTH-1:0] rData={C_PCI_DATA_WIDTH{1'b0}};
 reg [31:0] rLen=0;
 reg [31:0] rCount=0;
 reg [1:0] rState=0;
-
+reg [63:0] datos [63:0];
+assign teclado = datos [ADR];
 assign CHNL_RX_CLK = CLK;
 assign CHNL_RX_ACK = (rState == 2'd1);
 assign CHNL_RX_DATA_REN = (rState == 2'd1);
@@ -90,6 +92,7 @@ assign CHNL_TX_LEN = rLen; // in words
 assign CHNL_TX_OFF = 0;
 assign CHNL_TX_DATA = rData;
 assign CHNL_TX_DATA_VALID = (rState == 2'd3);
+
 
 always @(posedge CLK or posedge RST) begin
 	if (RST) begin
@@ -111,22 +114,23 @@ always @(posedge CLK or posedge RST) begin
 		
 		2'd1: begin // Wait for last data in RX, save value
 			if (CHNL_RX_DATA_VALID) begin
-				rData <= #1 CHNL_RX_DATA;
-				rCount <= #1 rCount + (C_PCI_DATA_WIDTH/32);
+				datos [rCount] <= #1 CHNL_RX_DATA;
+				rCount <= #1 rCount + 1;				
 			end
-			if (rCount >= rLen)
+			if (rCount >= rLen) begin
 				rState <= #1 2'd2;
+			end
 		end
 
 		2'd2: begin // Prepare for TX
-			rCount <= #1 (C_PCI_DATA_WIDTH/32);
+			rCount <= #1 0;
 			rState <= #1 2'd3;
 		end
 
 		2'd3: begin // Start TX with save length and data value
 			if (CHNL_TX_DATA_REN & CHNL_TX_DATA_VALID) begin
-				rData <= #1 {rCount + 4, rCount + 3, rCount + 2, rCount + 1};
-				rCount <= #1 rCount + (C_PCI_DATA_WIDTH/32);
+				rData <= #1 datos [rCount];
+				rCount <= #1 rCount + 1;
 				if (rCount >= rLen)
 					rState <= #1 2'd0;
 			end
@@ -136,24 +140,5 @@ always @(posedge CLK or posedge RST) begin
 	end
 end
 
-/*
-wire [35:0] wControl0;
-chipscope_icon_1 cs_icon(
-	.CONTROL0(wControl0)
-);
-
-chipscope_ila_t8_512 a0(
-	.CLK(CLK), 
-	.CONTROL(wControl0), 
-	.TRIG0({3'd0, (rCount >= 800), CHNL_RX, CHNL_RX_DATA_VALID, rState}),
-	.DATA({442'd0,
-			CHNL_TX_DATA_REN, // 1
-			CHNL_TX_ACK, // 1
-			CHNL_RX_DATA, // 64
-			CHNL_RX_DATA_VALID, // 1
-			CHNL_RX, // 1
-			rState}) // 2
-);
-*/
 
 endmodule

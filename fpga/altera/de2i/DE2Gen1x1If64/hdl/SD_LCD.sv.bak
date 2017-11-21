@@ -1,0 +1,58 @@
+module	LCD_SD (	
+					input clk,rst,
+					input [31:0] data,
+					input en,
+					output [7:0] DATA,
+					output RW, RS, EN, ON
+					);
+		
+
+logic [31:0] rd_data;
+logic [8:0] wr_address;
+logic [8:0] rd_address;
+logic en_mem;
+		
+always_ff @ (posedge clk) begin
+	if (rst) begin
+		wr_address <= 0;
+		en_mem <= 0;
+	end
+	else if (en) begin
+		if (wr_address == 16) begin
+			wr_address <= 0;
+			en_mem <= 1;
+		end
+		else begin
+			wr_address <= wr_address + 1;
+			en_mem <= 1;
+		end
+	end
+	else begin
+		wr_address <= wr_address;
+		en_mem <=  0;
+	end
+end
+
+memory mem1(
+.clk(clk),
+.rst(rst),
+.wr_addr(wr_address),
+.wr_en(en_mem),
+.wr_data(data),
+.rd_addr(rd_address),
+.rd_data (rd_data)
+);
+					
+LCD lcd(
+.clk(clk),
+.rst(rst),
+.data_mem(rd_data),
+.DATA(data_lcd),
+.address(rd_address),
+.RW(RW),
+.EN(EN),
+.RS(RS),
+.ON(ON)
+);
+					
+endmodule 
